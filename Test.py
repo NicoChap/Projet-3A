@@ -1,3 +1,4 @@
-import panda as pd
+import pandas as pd
 
-df= pd.read_csv('data.csv')
+df= pd.read_csv('Projet-3A\Data\data.csv')
+print(df["Input"][1])
