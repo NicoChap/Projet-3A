@@ -1,4 +1,4 @@
 import pandas as pd
 
 df= pd.read_csv('Projet-3A\Data\data.csv')
-print(df["Input"][1])
+print(df.shape[0])

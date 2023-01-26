@@ -1,12 +1,12 @@
 #Pour utiliser un réseau BERT il faut faire du pré-traitement de donnéesd'abord tokenize une phrase.
 #Pour cela, il faut tokenize la phrase en plusieurs token créer un token de départ, de fin,
 # de padding (pour arriver à la len max). Puis convertir le tout en ID.
-import dataset
-import transformers as trans
+from dataset import Dataset
 
-DS = dataset('Projet-3A\Data\data.csv', 'bert-base-uncased')
-tokenizer = trans.BertTokenizer.from_pretrained('bert-base-uncased')
-max_length = DS.max_length()
+DS = Dataset
+DS.SetFilename(DS, filename='Projet-3A\Data\data.csv')
+DS.SetModel(DS, 'bert-base-uncased')
+max_length = DS.max_length(DS)
 #On tokenize les données car le BERT n'accepte que ce format en tant qu'input et/ou pour être entraine.
 sentence = "Je suis alle en Jamaïque hier soir pour faire du snowboard"
-print(tokenizer.encode(sentence, add_special_tokens= True, max_length= max_length))
+print(DS.Encode(DS,sentence, True, max_length))
