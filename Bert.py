@@ -2,13 +2,17 @@
 #Pour cela, il faut tokenize la phrase en plusieurs token créer un token de départ, de fin,
 # de padding (pour arriver à la len max). Puis convertir le tout en ID.
 from dataset import Dataset
-from transformers import BertForSequenceClassification, Trainer
-DS = Dataset
-DS.SetFilename(DS, filename='Projet-3A\Data\data.csv')
-DS.SetModel(DS, 'bert-base-uncased')
-max_length = DS.max_length(DS)
+from transformers import BertForSequenceClassification
+from torch.utils.data import random_split
 
-#On tokenize les données.En effet, le BERT n'accepte que ce format en tant qu'input et/ou pour être entraine.
+DS = Dataset(filename='Data\data.csv', model='bert-base-uncased')
+#On tokenize les données.En effet, le BERT n'accepte que ce format en tant qu'input 
+# et/ou pour être entraine.
+encoded_data = DS.EncodeAll()
+train_size = int(len(encoded_data[0])*0.9)
+validation_size = len(encoded_data) - train_size
+train_dataset, validation_dataset = random_split(encoded_data, [train_size, validation_size])
+
 
 #Import du modèle BERT :
 BERTmodel = BertForSequenceClassification.from_pretrained(
