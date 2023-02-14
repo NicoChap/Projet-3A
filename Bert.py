@@ -9,6 +9,7 @@ import torch
 from torch.utils.data import random_split, DataLoader
 import random
 import numpy as np
+import os
 
 def flat_accuracy(preds, labels):
     pred_flat = np.argmax(preds, axis=1).flatten()
@@ -19,14 +20,14 @@ DS = Dataset(filename='Data\data.csv', model='bert-base-uncased')
 #On tokenize les données.En effet, le BERT n'accepte que ce format en tant qu'input 
 # et/ou pour être entraine.
 encoded_data = DS.EncodeAll()
-train_size = int(len(encoded_data[0])*0.9)
-validation_size = len(encoded_data) - train_size
+train_size = int(len(encoded_data.tensors[0])*0.9)
+validation_size = len(encoded_data.tensors[0]) - train_size
 #On prend aléatoirement des données du dataset et on les placent soit dans le training, soit dans la validation
 train_dataset, validation_dataset = random_split(encoded_data, [train_size, validation_size])
 
 
-batch_size = 32
 #Puis, on créé des batchs aléatoirement à partir de chaque dataset (training et alidation):
+batch_size = 32
 training_dataloader = DataLoader( train_dataset, batch_size = batch_size, shuffle=True)
 validation_dataloader = DataLoader(validation_dataset, batch_size = batch_size)
 
@@ -41,8 +42,9 @@ BERTmodel = BertForSequenceClassification.from_pretrained(
 #Where to perform the mathematical operation (CPU/GPU) ?
 device_utilise = "cpu"
 device = torch.device(device_utilise)
+print("")
 print("Le composant utilise est: " + device_utilise)
-
+print("")
 
 #Definir l'optimizer a utiliser:
 optimizer = AdamW(BERTmodel.parameters(),
@@ -94,7 +96,7 @@ for epoch_i in range(0, epochs):
     # For each batch of training data...
     for step, batch in enumerate(training_dataloader):
         # Progress update every 40 batches.
-        if step % 40 == 0 and not step == 0:    
+        if step % 10 == 0 and not step == 0:    
             # Report progress.
             print('  Batch {:>5,}  of  {:>5,}.'.format(step, len(training_dataloader)))
 
@@ -114,7 +116,7 @@ for epoch_i in range(0, epochs):
         # backward pass. PyTorch doesn't do this automatically because 
         # accumulating the gradients is "convenient while training RNNs". 
         # (source: https://stackoverflow.com/questions/48001598/why-do-we-need-to-call-zero-grad-in-pytorch)
-        BERTmodel.zero_grad()        
+        BERTmodel.zero_grad()     
 
         # Perform a forward pass (evaluate the model on this training batch).
         # The documentation for this `model` function is here: 
@@ -123,8 +125,8 @@ for epoch_i in range(0, epochs):
         # arge given and what flags are set. For our useage here, it returns
         # the loss (because we provided labels) and the "logits"--the model
         # outputs prior to activation.
-        loss = BERTmodel(b_input_ids, token_type_ids=None, attention_mask=b_input_mask, labels=b_labels).loss
-        logits = BERTmodel(b_input_ids, token_type_ids=None, attention_mask=b_input_mask, labels=b_labels).logits
+        loss = BERTmodel.forward(input_ids= b_input_ids, token_type_ids=None, attention_mask=b_input_mask, labels=b_labels).loss
+        logits = BERTmodel.forward(input_ids= b_input_ids, token_type_ids=None, attention_mask=b_input_mask, labels=b_labels).logits
         # Accumulate the training loss over all of the batches so that we can
         # calculate the average loss at the end. `loss` is a Tensor containing a
         # single value; the `.item()` function just returns the Python value 
@@ -233,3 +235,18 @@ for epoch_i in range(0, epochs):
 
 print("")
 print("Training complete!")
+
+# Saving best-practices: if you use defaults names for the model, you can reload it using from_pretrained()
+output_dir = './model_save/'
+
+# Create output directory if needed
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+print("Saving model to %s" % output_dir)
+
+# Save a trained model, configuration and tokenizer using `save_pretrained()`.
+# They can then be reloaded using `from_pretrained()`
+model_to_save = BERTmodel.module if hasattr(BERTmodel, 'module') else BERTmodel  # Take care of distributed/parallel training
+model_to_save.save_pretrained(output_dir)
+DS.SaveTokenizer(output_dir)

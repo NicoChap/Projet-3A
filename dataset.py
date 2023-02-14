@@ -28,7 +28,7 @@ class Dataset:
         # Tokenize all of the sentences and map the tokens to thier word IDs.
         inputs_ids = []
         attention_masks = []
-
+        print("Loading data...")
         # For every sentence...
         for raw_input in self.raw_inputs:
             # `encode_plus` will:
@@ -41,9 +41,8 @@ class Dataset:
             encoded_dict = self.tokenizer.encode_plus(
                                 raw_input,                      # Sentence to encode.
                                 add_special_tokens = True, # Add '[CLS]' and '[SEP]'
-                                truncation = True,
                                 max_length = 64,           # Pad & truncate all sentences.
-                                pad_to_max_length = True,
+                                padding = 'max_length',
                                 return_attention_mask = True,   # Construct attn. masks.
                                 return_tensors = 'pt',     # Return pytorch tensors.
                         )
@@ -58,7 +57,8 @@ class Dataset:
         input_ids = torch.cat(inputs_ids, dim=0)
         attention_masks = torch.cat(attention_masks, dim=0)
         labels = torch.tensor(self.file['Label'])
-        return(TensorDataset(input_ids, attention_masks, labels))
+        print("Data Loaded")
+        return(TensorDataset(input_ids, attention_masks, labels)) 
 
     def MaxLength(self):
         max_len = 0
@@ -68,3 +68,6 @@ class Dataset:
                 max_len = sample_size
         self.max_len= max_len
         return(max_len)
+
+    def SaveTokenizer(output_dir):
+        trans.tokenizer.save_pretrained(output_dir)
