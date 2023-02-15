@@ -29,13 +29,15 @@ class Text_generator() :
         # renvoyer la réponse sous forme de chaîne de caractères
         txt = response.choices[0].text
         #print('.............................................')
+        msg = txt
+        '''
         msg = ""
         for c in txt :
             if c not in ['.','?','!'] :
                 msg += c
             else :
                 msg += c
-                break
+                break'''
         return msg
 
 # exemple d'utilisation
