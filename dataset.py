@@ -60,7 +60,7 @@ class Dataset:
         print("Data Loaded")
         return(TensorDataset(input_ids, attention_masks, labels)) 
 
-    def MaxLength(self):
+    def MaxLength(self):  
         max_len = 0
         for i in range(self.file.shape[0]):
             sample_size= len(self.tokenizer.encode(self.raw_inputs[i], add_special_tokens= False))
