@@ -5,7 +5,9 @@ from transformers import GPT2Tokenizer,GPT2LMHeadModel
 
 Txt_generator = Generateur.Text_generator()
 
-def discussion(type_of_answer_wanted=None,input_user=None,keep_context=True) :
+def discussion(type_of_answer_wanted=None,input_user=None,keep_context=True,keep_perplexity=False) :
+    list_perplexity = []
+
     msg = ""
     while 1!=0 :
         
@@ -66,3 +68,6 @@ def discussion(type_of_answer_wanted=None,input_user=None,keep_context=True) :
         msg+='\n'
         msg += answer
         print("Réponse finale : ",answer)
+        if keep_perplexity :
+            list_perplexity.append(p)
+    return list_perplexity
