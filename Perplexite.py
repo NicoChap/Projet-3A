@@ -25,7 +25,10 @@ def get_perplexity(prompt, response, type_of_answer = ""):
     tokens = choices.logprobs.token_logprobs
 
     # Calculate the average log probability
-    log_prob = sum([logprob for logprob in tokens]) / len(tokens)
+    if len(tokens) > 0 :
+        log_prob = sum([logprob for logprob in tokens]) / len(tokens)
+    else : 
+        log_prob = 10e10
     # Convert log probability to perplexity
     perplexity = 2 ** (-log_prob)
     return perplexity
@@ -43,8 +46,12 @@ def custom_split(sepr_list, str_to_split):
     # find all occurrences of the separator regex in the string
     # and split the string using the separators while preserving them
     L = re.findall(f'[^{regular_exp}]+|[{regular_exp}]', str_to_split)
+    #print(L)
     final_L = []
     for i in range(len(L)) :
-        if L[i] in sepr_list and i>1:
+        if L[i] in sepr_list and i>0:
+            #print(L[i],L[i-1])
             final_L.append(L[i-1]+L[i])
+    if len(final_L) == 0 :
+        final_L.append(L[i])
     return final_L
