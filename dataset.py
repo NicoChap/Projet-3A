@@ -2,27 +2,33 @@ import pandas as pd
 import transformers as trans
 import torch
 from torch.utils.data import TensorDataset
+from numpy import random as rd
 
 class Dataset:
     file = any
     model = ''
     max_len= 0
     tokenizer = trans.BertTokenizer
-    raw_inputs = ""
+    raw_inputs = any
+    dataset_size = 0
 
     def __init__(self, filename, model):
         self.file = pd.read_csv(filename)
+        self.file['Index'] = self.file.index
         self.raw_inputs = self.file['Input']
         #On choisit le tokenizer adapte au BERT utilise.
         self.model = model
         self.tokenizer = trans.BertTokenizer.from_pretrained(model)
+        self.BalanceDataset()
 
-    def Encode(self, sentence, special_char = False, max_length = None):
-        truncate = True
-        if max_length == None:
-            truncate = False
-        return(self.tokenizer.encode(
-            sentence, add_special_tokens= special_char, max_length= max_length, truncation=truncate))
+    def Encode(self, sentence, special_char = False, max_length = None, pt_tensors = None):
+        return(self.tokenizer.encode_plus(
+            sentence,
+            add_special_tokens= special_char,
+            max_length= max_length,
+            padding='max_length',
+            return_attention_mask = True,
+            return_tensors= pt_tensors))
 
     def EncodeAll(self):
         # Tokenize all of the sentences and map the tokens to thier word IDs.
@@ -68,6 +74,35 @@ class Dataset:
                 max_len = sample_size
         self.max_len= max_len
         return(max_len)
+    
+    def BalanceDataset(self):
+        #Check which between chitchat and QA have the larger databases
+        qa_df = self.file.query('(Label == 1)')
+        cc_df = self.file.query('(Label == 0)')
+        if len(qa_df) - len(cc_df) > 0:
+            samples = qa_df.sample(len(cc_df))
+            self.file = pd.concat(samples, cc_df)
+        else:
+            samples = cc_df.sample(len(qa_df))
+            self.file = pd.concat([qa_df, samples])
+        self.dataset_size = len(self.file)
+        self.file = self.file.reset_index(drop=True)
+        print(self.file.head)
+
+    def SelectFewExamples(self, proportion):
+        num_samples = int(self.dataset_size * proportion)
+        examples = {
+            "input": [],
+            "attention_mask": [],
+            "label": []
+        }
+        for i in range(num_samples):
+            index = int(rd.uniform(0,self.dataset_size))
+            dict = self.Encode(self.file['Input'][index], special_char=True, max_length=64, pt_tensors = 'pt')
+            examples["input"].append(dict['input_ids'])
+            examples["attention_mask"].append(dict['attention_mask'])
+            examples["label"].append(self.file['Label'][index])
+        return(examples)
 
     def SaveTokenizer(output_dir):
         trans.tokenizer.save_pretrained(output_dir)
