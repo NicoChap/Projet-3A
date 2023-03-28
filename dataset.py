@@ -15,11 +15,11 @@ class Dataset:
     def __init__(self, filename, model):
         self.file = pd.read_csv(filename)
         self.file['Index'] = self.file.index
+        self.BalanceDataset()
         self.raw_inputs = self.file['Input']
         #On choisit le tokenizer adapte au BERT utilise.
         self.model = model
         self.tokenizer = trans.BertTokenizer.from_pretrained(model)
-        self.BalanceDataset()
 
     def Encode(self, sentence, special_char = False, max_length = None, pt_tensors = None):
         return(self.tokenizer.encode_plus(
@@ -81,13 +81,13 @@ class Dataset:
         cc_df = self.file.query('(Label == 0)')
         if len(qa_df) - len(cc_df) > 0:
             samples = qa_df.sample(len(cc_df))
-            self.file = pd.concat(samples, cc_df)
+            self.file = pd.concat([samples, cc_df])
         else:
             samples = cc_df.sample(len(qa_df))
             self.file = pd.concat([qa_df, samples])
         self.dataset_size = len(self.file)
         self.file = self.file.reset_index(drop=True)
-        print(self.file.head)
+        print("Dealing with", self.dataset_size,"sentences, with", self.dataset_size/2, "senteces for QA and CC." )
 
     def SelectFewExamples(self, proportion):
         num_samples = int(self.dataset_size * proportion)

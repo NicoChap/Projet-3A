@@ -1,5 +1,6 @@
-#Code grandement inspiré d'ici: https://mccormickml.com/2019/07/22/BERT-fine-tuning/
+'''Ce fichier est utilisé pour le fintuning d'un modèle BERT pré-entrainé'''
 
+#Code grandement inspiré d'ici: https://mccormickml.com/2019/07/22/BERT-fine-tuning/
 #Pour utiliser un réseau BERT il faut faire du pré-traitement de données d'abord tokenize une phrase.
 #Pour cela, il faut tokenize la phrase en plusieurs token créer un token de départ, de fin,
 # de padding (pour arriver à la len max). Puis convertir le tout en ID.
@@ -40,7 +41,10 @@ BERTmodel = BertForSequenceClassification.from_pretrained(
 )
 
 #Where to perform the mathematical operation (CPU/GPU) ?
-device_utilise = "cpu"
+if torch.cuda.is_available():
+    device_utilise = "cuda"
+else:
+    device_utilise = "cpu"
 device = torch.device(device_utilise)
 print("")
 print("Le composant utilise est: " + device_utilise)
@@ -93,12 +97,13 @@ for epoch_i in range(0, epochs):
     # vs. test (source: https://stackoverflow.com/questions/51433378/what-does-model-train-do-in-pytorch)
     BERTmodel.train()
 
+    number_of_batch = len(training_dataloader)
     # For each batch of training data...
     for step, batch in enumerate(training_dataloader):
         # Progress update every 40 batches.
         if step % 10 == 0 and not step == 0:    
             # Report progress.
-            print('  Batch {:>5,}  of  {:>5,}.'.format(step, len(training_dataloader)))
+            print('  Batch {:>5,}  of  {:>5,}.'.format(step, number_of_batch))
 
         # Unpack this training batch from our dataloader. 
         #
@@ -125,8 +130,8 @@ for epoch_i in range(0, epochs):
         # arge given and what flags are set. For our useage here, it returns
         # the loss (because we provided labels) and the "logits"--the model
         # outputs prior to activation.
-        loss = BERTmodel.forward(input_ids= b_input_ids, token_type_ids=None, attention_mask=b_input_mask, labels=b_labels).loss
-        logits = BERTmodel.forward(input_ids= b_input_ids, token_type_ids=None, attention_mask=b_input_mask, labels=b_labels).logits
+        forward_pass = BERTmodel.forward(input_ids= b_input_ids, token_type_ids=None, attention_mask=b_input_mask, labels=b_labels)
+        loss, logits = forward_pass.loss, forward_pass.logits
         # Accumulate the training loss over all of the batches so that we can
         # calculate the average loss at the end. `loss` is a Tensor containing a
         # single value; the `.item()` function just returns the Python value 
@@ -174,6 +179,9 @@ for epoch_i in range(0, epochs):
 
     # Evaluate data for one epoch
     for batch in validation_dataloader:
+        if step % 10 == 0 and not step == 0:    
+            # Report progress.
+            print('  Batch {:>5,}  of  {:>5,}.'.format(step, number_of_batch))
         
         # Unpack this training batch from our dataloader. 
         #
@@ -199,8 +207,9 @@ for epoch_i in range(0, epochs):
             # https://huggingface.co/transformers/v2.2.0/model_doc/bert.html#transformers.BertForSequenceClassification
             # Get the "logits" output by the model. The "logits" are the output
             # values prior to applying an activation function like the softmax.
-            loss = BERTmodel(b_input_ids, token_type_ids=None, attention_mask=b_input_mask, labels=b_labels).loss
-            logits = BERTmodel(b_input_ids, token_type_ids=None, attention_mask=b_input_mask, labels=b_labels).logits
+            forward_pass = BERTmodel(b_input_ids, token_type_ids=None, attention_mask=b_input_mask, labels=b_labels)
+            loss = forward_pass.loss
+            logits = forward_pass.logits
             
         # Accumulate the validation loss.
         total_eval_loss += loss.item()
