@@ -15,6 +15,7 @@ class Dataset:
     def __init__(self, filename, model):
         self.file = pd.read_csv(filename)
         self.file['Index'] = self.file.index
+        self.file = self.file.dropna()
         self.BalanceDataset()
         self.raw_inputs = self.file['Input']
         #On choisit le tokenizer adapte au BERT utilise.
@@ -36,7 +37,7 @@ class Dataset:
         attention_masks = []
         print("Loading data...")
         # For every sentence...
-        for raw_input in self.raw_inputs:
+        for i in range(len(self.raw_inputs)):
             # `encode_plus` will:
             #   (1) Tokenize the sentence.
             #   (2) Prepend the `[CLS]` token to the start.
@@ -44,10 +45,13 @@ class Dataset:
             #   (4) Map tokens to their IDs.
             #   (5) Pad or truncate the sentence to `max_length`
             #   (6) Create attention masks for [PAD] tokens.
+            raw_input = self.raw_inputs[i]
+            #print(raw_input)
             encoded_dict = self.tokenizer.encode_plus(
                                 raw_input,                      # Sentence to encode.
                                 add_special_tokens = True, # Add '[CLS]' and '[SEP]'
-                                max_length = 64,           # Pad & truncate all sentences.
+                                max_length = 64, 
+                                truncation=True,        # Pad & truncate all sentences.
                                 padding = 'max_length',
                                 return_attention_mask = True,   # Construct attn. masks.
                                 return_tensors = 'pt',     # Return pytorch tensors.
