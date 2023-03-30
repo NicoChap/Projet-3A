@@ -1,20 +1,19 @@
 import Perplexite
 import Generateur
-import math
 from transformers import GPT2Tokenizer,GPT2LMHeadModel
 
-Txt_generator = Generateur.Text_generator()
-
-def discussion(type_of_answer_wanted=None,input_user=None,keep_context=True,keep_perplexity=False) :
+def discussion(type_of_answer_wanted=None,input_user=None,keep_context=True,keep_perplexity=False,show_answer=True) :
     list_perplexity = []
-
+    indice = 0
     msg = ""
     while 1!=0 :
         
-        if input_user == None :
+        if input_user is None :
             sentence = input()
         else :
-            sentence = input_user
+            if indice < len(input_user) :
+                sentence = input_user['Input'][indice]
+                indice+=1
 
         if sentence == "Quit" or sentence == "quit" or sentence == 'q' :
             break
@@ -23,19 +22,25 @@ def discussion(type_of_answer_wanted=None,input_user=None,keep_context=True,keep
             type_of_answer_needed = "chitchat"
         else :
             type_of_answer_needed = type_of_answer_wanted
+
+        #print("Message envoyé dans le modèle : ", msg)
+        if len(msg) > 2048 :
+            msg = msg[-2048:]
         
-        msg+='\n'
+        answer = Generateur.generator(sentence,type_of_answer_needed,msg)
+
         if keep_context :
             msg += sentence
         else :
             msg = sentence
-        #print("Message envoyé dans le modèle : ", msg)
-        if len(msg) > 2048 :
-            msg = msg[-2048:]
-        answer = Txt_generator.chatbot_response(msg,type_of_answer_needed)
+        
+        msg+='\n'
 
-        print("Réponse complète : ",answer)
-        p = 10e10
+        if show_answer :
+            print(answer)
+
+        p = Perplexite.get_perplexity(msg,answer,type_of_answer_needed)
+        '''
         separator = ['.','?','!','\n']
         sentences = Perplexite.custom_split(separator,answer)
         #print("Phrases : ",sentences)
@@ -64,10 +69,10 @@ def discussion(type_of_answer_wanted=None,input_user=None,keep_context=True,keep
             if perp < p :
                 answer = temp_answer
                 p = perp
-
+        '''
         msg+='\n'
         msg += answer
-        print("Réponse finale : ",answer)
+        #print("Réponse finale : ",answer)
         if keep_perplexity :
             list_perplexity.append(p)
     return list_perplexity
