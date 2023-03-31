@@ -108,5 +108,5 @@ class Dataset:
             examples["label"].append(self.file['Label'][index])
         return(examples)
 
-    def SaveTokenizer(output_dir):
-        trans.tokenizer.save_pretrained(output_dir)
+    def SaveTokenizer(self,output_dir):
+        self.tokenizer.save_pretrained(output_dir)
