@@ -28,7 +28,7 @@ def get_perplexity(prompt, response, type_of_answer = ""):
     if len(tokens) > 0 :
         log_prob = sum([logprob for logprob in tokens]) / len(tokens)
     else : 
-        log_prob = 10e10
+        log_prob = 1
     # Convert log probability to perplexity
     perplexity = 2 ** (-log_prob)
     return perplexity
