@@ -8,20 +8,49 @@ import pandas as pd
 path_test_dataset = './Data/Testing.csv'
 
 test_dataset = pd.read_csv(path_test_dataset)
-
-print(len(test_dataset['Input']))
-
 test_dataset.loc[2001] = ['q',2]
-print('OK')
 
-print(test_dataset['Input'][2001])
+l_type_of_answer_wanted = [None, 'chichat','Q&A']
+l_keep_context = [True, False]
 
-print('-------------------------------------')
+for t in l_type_of_answer_wanted :
+    for c in l_keep_context :
+        
+        print('-------------------------------------')
+
+        type_of_answer_wanted = t
+        keep_context = False
+        keep_perplexity = True
+
+        perplexity_list = discussion(type_of_answer_wanted=type_of_answer_wanted, input_user=test_dataset,keep_context=keep_context, keep_perplexity= keep_perplexity, show_answer = False)
+        QA_list = []
+        Chitchat_list = []
+
+        for L in range(test_dataset['Label']) :
+            if test_dataset['Label'][L] == 0 :
+                Chitchat_list.append(perplexity_list[L])
+            else : 
+                QA_list.append(perplexity_list[L])
 
 
-perplexity_list = discussion(type_of_answer_wanted=None, input_user=test_dataset,keep_context=False, keep_perplexity= True, show_answer = False)
-QA_list = []
-Chitchat_list = []
-
+        with open('data.txt', 'a') as f:
+            f.write('type_of_answer_wanted=' + str(type_of_answer_wanted) + " , keep_context=" + str(keep_context) + " , [")
+            for i in range(len(perplexity_list)):
+                if i < len(perplexity_list) -1:
+                    f.write(str(perplexity_list[i]) + ',')
+                else :
+                    f.write(str(perplexity_list[i]) + '] \n[')
+            
+            for i in range(len(Chitchat_list)):
+                if i < len(Chitchat_list) -1:
+                    f.write(str(Chitchat_list[i]) + ',')
+                else :
+                    f.write(str(Chitchat_list[i]) + '] \n[')
+            
+            for i in range(len(QA_list)):
+                if i < len(QA_list) -1:
+                    f.write(str(QA_list[i]) + ',')
+                else :
+                    f.write(str(QA_list[i]) + '] \n')
     
 
