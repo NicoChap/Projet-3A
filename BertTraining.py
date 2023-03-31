@@ -17,7 +17,7 @@ def flat_accuracy(preds, labels):
     labels_flat = labels.flatten()
     return np.sum(pred_flat == labels_flat) / len(labels_flat)
 
-DS = Dataset(filename='Data\MergedDataset.csv', model='bert-base-uncased')
+DS = Dataset(filename='Data/test.csv', model='bert-base-uncased')
 #On tokenize les données.En effet, le BERT n'accepte que ce format en tant qu'input 
 # et/ou pour être entraine.
 encoded_data = DS.EncodeAll()
@@ -32,14 +32,6 @@ batch_size = 32
 training_dataloader = DataLoader( train_dataset, batch_size = batch_size, shuffle=True)
 validation_dataloader = DataLoader(validation_dataset, batch_size = batch_size)
 
-#Import du modèle BERT :
-BERTmodel = BertForSequenceClassification.from_pretrained(
-    "bert-base-uncased", # Use the 12-layer BERT model, with an uncased vocab.
-    num_labels = 2, # The number of output labels--2 for binary classification. You can increase this for multi-class tasks.   
-    output_attentions = False, # Whether the model returns attentions weights.
-    output_hidden_states = False, # Whether the model returns all hidden-states.
-)
-
 #Where to perform the mathematical operation (CPU/GPU) ?
 if torch.cuda.is_available():
     device_utilise = "cuda"
@@ -49,6 +41,16 @@ device = torch.device(device_utilise)
 print("")
 print("Le composant utilise est: " + device_utilise)
 print("")
+
+#Import du modèle BERT :
+BERTmodel = BertForSequenceClassification.from_pretrained(
+    "bert-base-uncased", # Use the 12-layer BERT model, with an uncased vocab.
+    num_labels = 2, # The number of output labels--2 for binary classification. You can increase this for multi-class tasks.   
+    output_attentions = False, # Whether the model returns attentions weights.
+    output_hidden_states = False, # Whether the model returns all hidden-states.
+)
+
+BERTmodel.to(device)
 
 #Definir l'optimizer a utiliser:
 optimizer = AdamW(BERTmodel.parameters(),
