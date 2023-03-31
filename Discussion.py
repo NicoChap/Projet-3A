@@ -1,11 +1,11 @@
-import Perplexite
+#import Perplexite
 import Generateur
 from transformers import GPT2Tokenizer,GPT2LMHeadModel
 
 def discussion(type_of_answer_wanted=None,input_user=None,keep_context=True,keep_perplexity=False,show_answer=True) :
     list_perplexity = []
     indice = 0
-    msg = ""
+    msg = " "
     while 1!=0 :
         
         if input_user is None :
@@ -39,7 +39,7 @@ def discussion(type_of_answer_wanted=None,input_user=None,keep_context=True,keep
         if show_answer :
             print(answer)
 
-        p = Perplexite.get_perplexity(msg,answer,type_of_answer_needed)
+        p = Generateur.get_perplexity(msg,answer,type_of_answer_needed)
         '''
         separator = ['.','?','!','\n']
         sentences = Perplexite.custom_split(separator,answer)
