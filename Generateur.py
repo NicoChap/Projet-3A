@@ -46,17 +46,19 @@ class Text_generator() :
 from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModelForSeq2SeqLM
 import torch
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 ModelChitchat = AutoModelForCausalLM.from_pretrained("./Models/Chitchat/Model")
 TokenizerChitchat = AutoTokenizer.from_pretrained("./Models/Chitchat/Tokenizer",padding_side = 'left')
 
-ModelQA = AutoModelForSeq2SeqLM.from_pretrained("./Models/QA/Model")
+ModelQA = AutoModelForSeq2SeqLM.from_pretrained("./Models/QA/Model").to(device)
 TokenizerQA = AutoTokenizer.from_pretrained("./Models/QA/Tokenizer")
 
 def generator(message,type_of_answer="chitchat",context = " ") :
     if type_of_answer == "Q&A" :
         input_text = "question: " + message + "</s> question_context: " + context
     
-        input_tokenized = TokenizerQA.encode(input_text, return_tensors='pt', truncation=True, padding='max_length', max_length=1024)
+        input_tokenized = TokenizerQA.encode(input_text, return_tensors='pt', truncation=True, padding='max_length', max_length=1024).to(device)
 
         summary_ids = ModelQA.generate(input_tokenized, 
                                         max_length=30, 

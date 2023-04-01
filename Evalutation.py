@@ -8,9 +8,12 @@ import pandas as pd
 path_test_dataset = './Data/Testing.csv'
 
 test_dataset = pd.read_csv(path_test_dataset)
-test_dataset.loc[2001] = ['q',2]
+test_dataset = pd.concat([test_dataset.head(100),test_dataset.tail(100)])
+test_dataset = test_dataset.reset_index(drop=True)
+print(test_dataset)
 
-l_type_of_answer_wanted = [None, 'chichat','Q&A']
+
+l_type_of_answer_wanted = ['Q&A']
 l_keep_context = [True, False]
 
 for t in l_type_of_answer_wanted :
@@ -19,14 +22,14 @@ for t in l_type_of_answer_wanted :
         print('-------------------------------------')
 
         type_of_answer_wanted = t
-        keep_context = False
+        keep_context = c
         keep_perplexity = True
 
         perplexity_list = discussion(type_of_answer_wanted=type_of_answer_wanted, input_user=test_dataset,keep_context=keep_context, keep_perplexity= keep_perplexity, show_answer = False)
         QA_list = []
         Chitchat_list = []
 
-        for L in range(test_dataset['Label']) :
+        for L in range(len(test_dataset['Label'])) :
             if test_dataset['Label'][L] == 0 :
                 Chitchat_list.append(perplexity_list[L])
             else : 

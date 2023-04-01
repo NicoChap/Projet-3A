@@ -14,6 +14,9 @@ def discussion(type_of_answer_wanted=None,input_user=None,keep_context=True,keep
             if indice < len(input_user) :
                 sentence = input_user['Input'][indice]
                 indice+=1
+                print(indice)
+            else :
+                sentence = 'q'
 
         if sentence == "Quit" or sentence == "quit" or sentence == 'q' :
             break
