@@ -35,7 +35,7 @@ class Dataset:
         # Tokenize all of the sentences and map the tokens to thier word IDs.
         inputs_ids = []
         attention_masks = []
-        print("Loading data...")
+        print("Tokenizing data...")
         # For every sentence...
         for i in range(len(self.raw_inputs)):
             # `encode_plus` will:

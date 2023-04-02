@@ -6,16 +6,19 @@ import numpy as np
 
 print("=========Loading Model=========")
 device = "cpu"
-path = 'C:/Users/chapl/OneDrive/Desktop/FinetunedModels'
-BERTmodel = BertForSequenceClassification.from_pretrained(path)
-tokenizer = BertTokenizer.from_pretrained(path)
+path = "C:/Users/chapl/OneDrive/Documents/Temporaire"
+#path ='C:/Users/chapl/OneDrive/Desktop/FinetunedModels'
+BERTmodel = BertForSequenceClassification.from_pretrained('bert-base-uncased')
+BERTmodel.load_state_dict(torch.load(path))
+tokenizer = BertTokenizer.from_pretrained('C:/Users/chapl/OneDrive/Desktop/FinetunedModels')
 BERTmodel.to(device)
 print("")
 print("=========Model Loaded=========")
 
-DS = Dataset(filename='Data\ValidationData.csv', model='bert-base-uncased')
+csv_path = 'C:/Users/chapl/OneDrive/Documents/GitHub/Projet3A/Projet-3A/Data/Testing.csv'
+DS = Dataset(filename=csv_path, model='bert-base-uncased')
 
-testing_dict = DS.SelectFewExamples(0.05)
+testing_dict = DS.SelectFewExamples(1)
 print("Testing model on {:} values".format(len(testing_dict['input'])))
 
 input_ids = torch.cat(testing_dict['input'], dim=0)
