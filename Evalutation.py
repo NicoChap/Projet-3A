@@ -13,7 +13,7 @@ test_dataset = test_dataset.reset_index(drop=True)
 print(test_dataset)
 
 
-l_type_of_answer_wanted = ['chitchat']
+l_type_of_answer_wanted = [None]
 l_keep_context = [True, False]
 
 for t in l_type_of_answer_wanted :

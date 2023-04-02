@@ -22,7 +22,11 @@ def discussion(type_of_answer_wanted=None,input_user=None,keep_context=True,keep
             break
         
         if type_of_answer_wanted == None :
-            type_of_answer_needed = "chitchat"
+            if input_user is None :
+                type_of_answer_needed = "chitchat"
+            else :
+                type_of_answer_needed = ['chitchat','Q&A'][input_user['Label'][indice-1]]
+
         else :
             type_of_answer_needed = type_of_answer_wanted
 
