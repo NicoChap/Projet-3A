@@ -6,11 +6,11 @@ import numpy as np
 
 print("=========Loading Model=========")
 device = "cpu"
-path = "C:/Users/chapl/OneDrive/Documents/Temporaire"
+path = "C:/Users/chapl/OneDrive/Desktop/FinetunedModels"
 #path ='C:/Users/chapl/OneDrive/Desktop/FinetunedModels'
 BERTmodel = BertForSequenceClassification.from_pretrained('bert-base-uncased')
 BERTmodel.load_state_dict(torch.load(path))
-tokenizer = BertTokenizer.from_pretrained('C:/Users/chapl/OneDrive/Desktop/FinetunedModels')
+tokenizer = BertTokenizer.from_pretrained('C:/Users/chapl/OneDrive/Desktop/old_model')
 BERTmodel.to(device)
 print("")
 print("=========Model Loaded=========")

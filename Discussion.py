@@ -1,11 +1,13 @@
 #import Perplexite
 import Generateur
 from transformers import GPT2Tokenizer,GPT2LMHeadModel
+import Bert
 
 def discussion(type_of_answer_wanted=None,input_user=None,keep_context=True,keep_perplexity=False,show_answer=True) :
     list_perplexity = []
     indice = 0
     msg = " "
+    classifieur = Bert.Classifieur('C:/Users/chapl/OneDrive/Desktop/old_model')
     while 1!=0 :
         
         if input_user is None :
@@ -23,7 +25,8 @@ def discussion(type_of_answer_wanted=None,input_user=None,keep_context=True,keep
         
         if type_of_answer_wanted == None :
             if input_user is None :
-                type_of_answer_needed = "chitchat"
+                type_of_answer_needed = classifieur.predict(sentence)
+                print(type_of_answer_needed)
             else :
                 type_of_answer_needed = ['chitchat','Q&A'][input_user['Label'][indice-1]]
 
